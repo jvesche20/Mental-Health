@@ -1,0 +1,13 @@
+plugins {
+    id 'java'
+    id 'idea'
+}
+
+wrapper {
+    gradleVersion = '6.3'
+    distributionType = Wrapper.DistributionType.ALL
+}
+
+test {
+    useJUnitPlatform()
+}

@@ -1,0 +1,21 @@
+1. ACKNOWLEDGMENT AND ACCEPTANCE OF TERMS OF SERVICE
+THIS IS A LEGAL AGREEMENT BETWEEN USER AND LTU MENTAL HEALTH PROJECT. BY COMPLETING THE REGISTRATION PROCESS, YOU ARE INDICATING YOUR AGREEMENT TO BE BOUND BY ALL OF THE TERMS AND CONDITIONS OF THIS AGREEMENT.
+
+2. DESCRIPTION OF SERVICE
+This program is in no way responsible for diagnosing users. This program is to help guide the common diagnosis. It is up to a certified professional to determine the diagnosis of using this program. Users must answer questions based on specific scenarios. A diagnosis will be displayed and stored based on the questions answered. 
+
+3. SECURITY OF DATA
+Your data is secure and will not be sold to any person or company. Only authorized users will be able to access personal information. 
+
+4. CONDITIONS OF USE
+You are solely responsible for the content of all data You store or retrieve from, or attempt to store or retrieve from, Your Account. Your use of the Service is subject to all applicable local, state, national and international laws and regulations. You will: (a) not use the Service for any illegal purposes; (b) not use the Service to store, retrieve, transmit or view any file, data, image or program that contains: (i) any illegal pictures, materials or information; (ii) any harassing, libelous, abusive, threatening, harmful, vulgar, pornographic, obscene or otherwise objectionable material of any kind or nature; (iii) any material that encourages conduct that could constitute a criminal offense, give rise to civil liability or otherwise violate any applicable local, state, national or international law or regulation; (iv) any code or material that violates the intellectual property rights of others; (v) any Windows temporary files of any kind (including, without limitation, any *.p or ~*.* files); or (vi) any viruses, worms, "Trojan horses" or any other similar contaminating or destructive features; (c) comply with United States and other applicable law regarding the exportation and re-exportation of any data or other materials from the United States or other jurisdictions through the Service; (d) not use the Service for any spamming, chain letters or other use that may otherwise disrupt the Service or the networks through which You access and use the Service; (e) comply with all regulations, policies and procedures of networks through which You access and use the Service; and (f) not access or attempt to access any Service account for which You have no access authorization or duplicate, modify, distribute or display any of the data or files from any such account.
+
+5. MODIFICATIONS TO SERVICE
+LTU reserves the right to modify or discontinue the Service with or without notice to User. LTU shall not be liable to User or any third party should LTU exercise its right to modify or discontinue the Service.
+
+6. LIMITATIONS OF LIABILITY
+IN NO EVENT SHALL LTU HAVE ANY OBLIGATION OR LIABILITY TO YOU FOR THE COST OF PROCUREMENT OF SUBSTITUTE SERVICES OR DATA OR FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY OR CONSEQUENTIAL DAMAGES (INCLUDING, WITHOUT LIMITATION, ANY LOSS OF DATA, REVENUE OR PROFITS OR BUSINESS INTERRUPTION) OR OTHER PECUNIARY LOSS ARISING OUT OF YOUR USE OR INABILITY TO USE YOUR ACCOUNT OR THE SERVICE OR YOUR LOSS OF DATA OR FILES STORED THEREIN.
+
+7. NO RESALE OR COMMERCIAL USE OF THE SERVICE
+User agrees not to resell or make any commercial use of the Service, without the prior express written consent of LTU.
+

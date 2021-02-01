@@ -1,0 +1,19 @@
+Zoom meeting at 8:30 PM EST; participants:
+	• Salvatore
+	• Chris
+	• Sonali
+	• Uzma
+	• Austin
+	• Peter
+	• Mengyi (via phone)
+
+Topics
+	• Granted Austin access to GitLab (@KlaxonRT)
+	• Sal's re-created flowcharts in Google Drive using Draw.io
+	• Overview of GitLab issues and merge requests
+		○ Labels for estimating work item effort?
+	• Sonali found a Java NLP alternative to Python code we are using currently
+	• Uzma and Peter on security
+		○ For the whole application, not just the database
+		○ Oracle?
+Maybe MariaDB

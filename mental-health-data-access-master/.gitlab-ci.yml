@@ -1,0 +1,28 @@
+image: openjdk:11
+
+stages:
+  - build
+  - test
+
+before_script:
+  - chmod +x ./gradlew
+  - export GRADLE_USER_HOME=`pwd`/.gradle
+
+cache:
+  key: "$CI_BUILD_REF_NAME"
+  paths:
+    - .gradle/wrapper
+    - .gradle/caches
+
+build:
+  stage: build
+  script:
+    - ./gradlew clean build -x test
+  artifacts:
+    paths:
+      - build/libs/*.jar
+
+test:
+  stage: test
+  script:
+    - ./gradlew -x build test

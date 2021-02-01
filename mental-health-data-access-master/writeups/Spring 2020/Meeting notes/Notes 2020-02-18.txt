@@ -1,0 +1,14 @@
+Zoom meeting at 8:00 PM with Josh.
+	• Word comparisons
+	• Length of matches compared to total matches for illness
+		○ 10 symptoms for illness and 5 matches = 50% match
+	• Questions are stored in the database; symptoms inserted at underscores
+		○ String replacements done in the GUI
+	• DataHandler has all of the database functions
+	• How many disorders could we diagnose?
+		○ Josh skipped the drugs & addiction chapter of the DSM
+		○ Catatonic issue was not diagnosed
+	• Symptoms were reviewed and assigned to questions by hand
+		○ words.txt
+	• Ask questions until we get a top five, then don't go any further; past that point, there is probably no illness
+There may be issues with passing data back and forth between Java and Python

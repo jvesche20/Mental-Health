@@ -1,0 +1,11 @@
+Zoom meeting; participants:
+	• Salvatore
+	• Chris
+	• Uzma
+	• Sonali
+
+Topics
+	• Code splitting
+		○ Changes to be announced before landing in master
+	• Disease scoring
+Everyone should have something to work on by now?

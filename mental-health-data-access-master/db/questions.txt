@@ -1,0 +1,7 @@
+Do you ever have difficulty (trying to/with) _?  1
+Do you ever feel a lack or excess of _? 2
+Do you ever have symptoms of (a) _? 3
+Do you ever feel or have been called _? 4
+Do you ever struggle with skills such as _? 5
+Have you been doing an excess of or consuming an excess of _? 6
+Do you ever feel the need for or find yourself showing _? 7

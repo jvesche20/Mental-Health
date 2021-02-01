@@ -1,0 +1,1118 @@
+package edu.ltu.dsmproject.desktop;
+
+import edu.ltu.dsmproject.dataaccess.*;
+import edu.ltu.dsmproject.dataaccess.dao.PatientsDatabaseAccessObject;
+import edu.ltu.dsmproject.dataaccess.domain.*;
+import edu.ltu.dsmproject.desktop.services.DialogService;
+import edu.ltu.dsmproject.desktop.tablemodels.PatientTableModel;
+
+import javax.swing.*;
+import javax.swing.table.TableModel;
+
+import java.util.List;
+import java.awt.*;
+import java.awt.event.*;
+import java.io.IOException;
+
+/**
+ * Creates all of the panels visible to a user of the desktop application.
+ */
+public class DesktopGUI {
+	
+	
+	
+	
+	
+	private static final int MAIN_FRAME_WIDTH = 900;
+	private static final int MAIN_FRAME_HEIGHT = 500;
+	private static final String WINDOW_TITLE = "Mental Health System";
+	int numOfDiags = 3;
+	public boolean isPatientEditingPanel = false;
+	private JFrame mainFrame;
+	private List<Patient> patients;
+	private List<Disorder> disorders;
+	private Diagnoser diagnoser;
+	private boolean isDoc;
+	public String permissionLevel;
+
+	public DesktopGUI() {
+		disorders = PatientsDatabaseAccessObject.getInstance().getDisorders();
+		patients = PatientsDatabaseAccessObject.getInstance().getPatients();
+	}
+
+	public void runMainFrame() {
+		mainFrame = new JFrame(WINDOW_TITLE);
+	    mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	    mainFrame.setSize(MAIN_FRAME_WIDTH, MAIN_FRAME_HEIGHT);
+
+		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+		mainFrame.setLocation(dim.width/2-mainFrame.getSize().width/2, dim.height/2-mainFrame.getSize().height/2);
+	    
+	    runHomePanel();
+	    
+	    mainFrame.setVisible(true);
+	}
+
+	private void runHomePanel() {
+		JPanel startPanel = new JPanel();
+		startPanel.setSize(MAIN_FRAME_WIDTH, MAIN_FRAME_HEIGHT);
+		JButton doctorHomeScreenButton = new JButton("Doctor");
+		JButton newUserButton = new JButton("New User");
+
+		GridBagLayout aLayout = new GridBagLayout();
+		GridBagConstraints gbc = new GridBagConstraints();
+		
+		
+		startPanel.setLayout(aLayout);
+		gbc.insets = new Insets(10,10,10,10);
+		if(permissionLevel.equals("Admin")) {
+			newUserButton.addActionListener(e -> {
+				//startPanel.setVisible(false);
+				NewUserForm newUserForm = new NewUserForm();
+				
+			});
+		}
+		
+		
+		if(!(permissionLevel.equals("Guest") | permissionLevel.equals("Patient"))) {
+			doctorHomeScreenButton.addActionListener(e -> {
+				startPanel.setVisible(false);
+				runDoctorHomePanel();
+				isDoc = true;
+			});
+		}
+
+		JButton patientViewButton = new JButton("Patient");
+		patientViewButton.addActionListener(e -> {
+			startPanel.setVisible(false);
+			runNewPatientPanel();
+			isDoc = false;
+		});
+		
+		gbc.gridx = 2;
+		gbc.gridy = 5;
+		gbc.gridwidth = 1;
+		gbc.gridheight  = 1;
+	
+		JButton LogoutButton = new JButton("Logout");
+		startPanel.add(LogoutButton, gbc);
+		
+		// adding the logout button.
+		LogoutButton.addActionListener(e -> {
+			if (JOptionPane.showConfirmDialog(null, "Are you sure you want to logout?", "WARNING", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+				mainFrame.dispose();
+				LoginGUI mainMenu = new LoginGUI();
+				mainMenu.setupPanel();
+			}
+		});
+		
+
+		//gui coordinates and implementation
+		gbc.gridx = 1;
+		gbc.gridy = 1;
+		gbc.gridwidth = 2;
+		
+		startPanel.add(new JLabel("Mental Health Diagnosis System"), gbc);
+		
+		gbc.gridy = 2;
+		startPanel.add(new JLabel("Select User Type"), gbc);
+		
+		gbc.gridy = 3;
+		startPanel.add(new JLabel(" "), gbc);
+
+
+		gbc.gridx = 1;
+		gbc.gridy = 4;
+		gbc.gridwidth = 1;
+		gbc.gridheight  = 1;
+//		startPanel.add(doctorHomeScreenButton, gbc);
+//
+		gbc.gridx = 2;
+		startPanel.add(patientViewButton, gbc);
+
+//		gbc.gridx = 3;
+//		startPanel.add(newUserButton, gbc);
+		if(permissionLevel.equals("Admin")) {
+			gbc.gridx = 3;
+			startPanel.add(newUserButton, gbc);
+		}
+		if(!(permissionLevel.equals("Guest") | permissionLevel.equals("Patient"))) {
+			gbc.gridx = 1;
+			gbc.gridy = 4;
+			gbc.gridwidth = 1;
+			gbc.gridheight  = 1;
+			startPanel.add(doctorHomeScreenButton, gbc);
+		}
+
+		mainFrame.add(startPanel);
+	}
+
+	private void runDoctorHomePanel() {
+		JPanel docPanel = new JPanel();
+		docPanel.setSize(MAIN_FRAME_WIDTH, MAIN_FRAME_HEIGHT);
+
+		TableModel patientTableModel = new PatientTableModel(PatientsDatabaseAccessObject.getInstance().getPatients());
+		JTable patientTable = new JTable(patientTableModel);
+				
+		GridBagLayout aLayout = new GridBagLayout();
+		GridBagConstraints gbc = new GridBagConstraints();
+		docPanel.setLayout(aLayout);
+		gbc.insets = new Insets(10,10,10,10);
+
+		JButton addPatientButton = new JButton("Add Patient");
+		addPatientButton.addActionListener(e -> {
+			docPanel.setVisible(false);
+			runNewPatientPanel();
+		});
+		
+		//Open edit view form
+		JTextField patientIdTextField = new JTextField("Enter Patient ID Here");
+		patientIdTextField.addMouseListener(new MouseAdapter(){
+            @Override
+            public void mouseClicked(MouseEvent e){
+                patientIdTextField.setText("");
+            }
+        });
+		JButton viewEdit = new JButton("View / Edit");
+		viewEdit.addActionListener(e -> {
+			boolean called = false;
+			int id = Integer.parseInt(patientIdTextField.getText());
+
+			for (Patient p: patients) {
+				if (p.patientID == id) {
+					docPanel.setVisible(false);
+					try {
+						runPatientEditingForm(p);
+					} catch (IOException ex) {
+						ex.printStackTrace();
+					}
+					called = true;
+					break;
+				}
+			}
+
+			if(id > patients.get(patients.size()-1).patientID || id <=0  || !called)
+				DialogService.showInfoDialog( "This is not a valid patient ID. Please enter a valid patient ID.");
+		});
+		
+		
+	
+		JButton LogoutButton = new JButton("Logout");
+		// adding the logout button.
+		LogoutButton.addActionListener(e -> {
+			if (JOptionPane.showConfirmDialog(null, "Are you sure you want to logout?", "WARNING", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+				mainFrame.dispose();
+				LoginGUI mainMenu = new LoginGUI();
+				mainMenu.setupPanel();
+			}
+		});
+		
+		JButton backButton = new JButton("Back");
+		backButton.addActionListener(e -> {
+			//runDoctorHomePanel.dispose();
+			docPanel.setVisible(false);
+			runHomePanel();
+			
+		});
+		//gui coordinates and implementation
+		gbc.fill = GridBagConstraints.BOTH;
+		gbc.weightx = 1;
+		gbc.weighty = 0;
+		gbc.gridx = 0;
+		gbc.gridy = 0;
+		docPanel.add(new JLabel("Welcome Doctor"), gbc);
+		
+		gbc.weighty = 0;
+		gbc.gridy = 1;
+		gbc.gridx = 0;
+		gbc.gridwidth = 4;
+		docPanel.add(new JLabel("Recent Diagnosis'"), gbc);
+		
+		gbc.weighty = 1;
+		gbc.gridy = 2;
+		gbc.gridheight = 5;
+		docPanel.add(new JScrollPane(patientTable), gbc);
+		
+		gbc.weighty = 0;
+		gbc.weightx = 0;
+		gbc.gridx = 5;
+		gbc.gridwidth = 1;
+		gbc.gridheight = 1;
+		docPanel.add(addPatientButton, gbc);
+		
+		gbc.weighty = 0;
+		gbc.weightx = 0;
+		gbc.gridx = 0;
+		gbc.gridy = 7;
+		gbc.gridwidth = 1;
+		gbc.gridheight = 1;
+		docPanel.add(patientIdTextField, gbc);
+		
+		gbc.weighty = 0;
+		gbc.weightx = 0;
+		gbc.gridx = 1;
+		gbc.gridy = 7;
+		gbc.gridwidth = 1;
+		gbc.gridheight = 1;
+		docPanel.add(viewEdit, gbc);
+		
+		gbc.weighty = 0;
+		gbc.weightx = 0;
+		gbc.gridx = 5;
+		gbc.gridy = 0;
+		gbc.gridwidth = 1;
+		gbc.gridheight = 1;
+		docPanel.add(LogoutButton, gbc);
+		
+		
+		gbc.weighty = 0;
+		gbc.weightx = 0;
+		gbc.gridx = 4;
+		gbc.gridy = 0;
+		gbc.gridwidth = 1;
+		gbc.gridheight = 1;
+		docPanel.add(backButton, gbc);
+		
+		
+		
+		
+		mainFrame.add(docPanel);
+	}
+	
+	private void runPatientEditingForm(Patient patient) throws IOException {
+		JPanel patientEditingPanel = new JPanel();
+		patientEditingPanel.setSize(MAIN_FRAME_WIDTH, MAIN_FRAME_HEIGHT);
+		
+		GridBagLayout eLayout = new GridBagLayout();
+		GridBagConstraints gbc = new GridBagConstraints();
+		patientEditingPanel.setLayout(eLayout);
+		gbc.insets = new Insets(10,10,10,10);
+				
+		
+		String name = patient.patientName;
+		String gender = patient.gender;
+		
+		JLabel patName = new JLabel("Name: " + name);
+		JLabel patGender = new JLabel("Gender: " + gender);
+		
+		JLabel patPreIll = new JLabel("Pre-existing Illnesses: ");
+		JTextArea patPreText = new JTextArea();
+		patPreText.setLineWrap(true);
+		
+		JLabel patDrugUse = new JLabel("Drug / Alcohol Use: ");
+		JRadioButton drug = new JRadioButton("Drugs");
+		JRadioButton alcohol = new JRadioButton("Alcohol");
+		
+		JLabel patDescription = new JLabel("Keywords: ");
+		JTextArea patProblem = new JTextArea(patient.words);
+		patProblem.setLineWrap(true);
+
+		JLabel toggleDiags = new JLabel();
+		toggleDiags.setText("Toggle # of Diagnoses");
+		String[] s1 = { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10" };
+		JComboBox<String> toggleButton = new JComboBox<>(s1);
+		toggleButton.setSelectedItem(Integer.toString(numOfDiags));
+		toggleButton.addActionListener(e -> {
+			numOfDiags = Integer.parseInt(toggleButton.getSelectedItem().toString());
+			patientEditingPanel.setVisible(false);
+			try {
+				runPatientEditingForm(patient);
+			} catch (IOException ex) {
+				ex.printStackTrace();
+			}
+		});
+		
+		JButton cancel = new JButton("Go Back");
+		cancel.addActionListener(e -> {
+			patientEditingPanel.setVisible(false);
+			runDoctorHomePanel();
+		});
+		
+		JButton submit = new JButton("Submit Changes");
+		submit.addActionListener(e -> {
+			patient.problemDescription = patProblem.getText();
+			patient.words = patProblem.getText();
+			diagnoser = new Diagnoser(patient);
+			Q ques = diagnoser.nextQ(0);
+			isPatientEditingPanel = true;
+
+			diagnoser.findWordMatch();
+			Score score = diagnoser.getScores().get(ques.diagnosisID);
+			if(score.matchPercentage >= 50) {
+				patientEditingPanel.setVisible(false);
+				runReportForm(score, patient);
+			}
+			else {
+				Q quest = diagnoser.nextQ(ques.diagnosisID);
+				patientEditingPanel.setVisible(false);
+				runFollowUpQuestionForm(quest, patient);
+			}
+		});
+
+		
+		JButton LogoutButton = new JButton("Logout");
+		// adding the logout button.
+		LogoutButton.addActionListener(e -> {
+			if (JOptionPane.showConfirmDialog(null, "Are you sure you want to logout?", "WARNING", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+				patientEditingPanel.setVisible(false);
+				mainFrame.dispose();
+				LoginGUI mainMenu = new LoginGUI();
+				mainMenu.setupPanel();
+			}
+		});
+		
+		
+		int gridyVar = 1;
+		//gui coordinates and implementation
+
+		gbc.fill = GridBagConstraints.BOTH;
+        gbc.weightx = 0;
+        gbc.weighty = 0;
+        gbc.gridx = 4;
+        gbc.gridy = 0;
+        patientEditingPanel.add(LogoutButton, gbc);
+
+		gbc.weightx = 0;
+        gbc.weighty = 0;
+        gbc.gridx = 1;
+        gbc.gridy = gridyVar;
+        patientEditingPanel.add(patName, gbc);
+		
+		
+		gbc.weightx = 0;
+		gbc.weighty = 0;
+		gbc.gridx = 2;
+		gbc.gridy = gridyVar;
+		patientEditingPanel.add(patGender, gbc);
+
+		gbc.fill = GridBagConstraints.BOTH;
+		gbc.weightx = 0;
+		gbc.weighty = 0;
+		gbc.gridx = 3;
+		gbc.gridy = gridyVar;
+		patientEditingPanel.add(toggleDiags, gbc);
+
+        gbc.fill = GridBagConstraints.BOTH;
+        gbc.weightx = 0;
+        gbc.weighty = 0;
+        gbc.gridx = 4;
+        gbc.gridy = gridyVar;
+        patientEditingPanel.add(toggleButton, gbc);
+		gridyVar++;
+		
+		gbc.weightx = 0;
+		gbc.weighty = 0;
+		gbc.gridx = 0;
+		gbc.gridy = gridyVar;
+		gbc.gridwidth = 1;
+		gbc.gridheight = 1;
+		patientEditingPanel.add(patPreIll, gbc);
+		gbc.weighty = 1;
+		gbc.gridx = 1;
+		gbc.gridwidth = 2;
+		gbc.gridheight = 1;
+		patientEditingPanel.add(patPreText, gbc);
+		gridyVar++;
+		
+		gbc.weightx = 0;
+		gbc.weighty = 0;
+		gbc.gridx = 0;
+		gbc.gridy = gridyVar;
+		gbc.gridwidth = 1;
+		gbc.gridheight = 1;
+		patientEditingPanel.add(patDrugUse, gbc);
+		gbc.gridx = 1;
+		gbc.gridwidth = 1;
+		patientEditingPanel.add(drug, gbc);
+		gbc.gridx = 2;
+		gbc.weightx = 1;
+		patientEditingPanel.add(alcohol,gbc);
+		gridyVar++;
+		
+		gbc.weightx = 0;
+		gbc.weighty = 0;
+		gbc.gridx = 0;
+		gbc.gridy = gridyVar;
+		gbc.gridwidth = 1;
+		gbc.gridheight = 1;
+		patientEditingPanel.add(patDescription, gbc);
+		gbc.weighty = 1;
+		gbc.gridx = 1;
+		gbc.gridwidth = 2;
+		gbc.gridheight = 1;
+		patientEditingPanel.add(patProblem, gbc);
+		gridyVar++;
+
+        gbc.weightx = 0;
+        gbc.gridx = 0;
+        gbc.gridy = gridyVar;
+        patientEditingPanel.add(new JLabel("Top Illnesses high to low:"),gbc);
+        Diagnoser diag = new Diagnoser(patient);
+
+		int gridyVar2 = gridyVar;
+        for(int x = 0; x < numOfDiags; x++) {
+        	if(x > 4){
+				gbc.weightx = 0;
+				gbc.gridx = 2;
+				gbc.gridy = gridyVar2;
+                JLabel xlabel = new JLabel((x + 1) +")");
+                xlabel.setForeground(Color.red);
+                patientEditingPanel.add(xlabel,gbc);
+				patientEditingPanel.add(new JLabel("      Illness: " + diag.getScores().get(x).dID + " Score: " + diag.getScores().get(x).matchPercentage + "%"),gbc);
+				gridyVar2++;
+			}
+        	else{
+				gbc.weightx = 0;
+				gbc.gridx = 1;
+				gbc.gridy = gridyVar;
+                JLabel xlabel = new JLabel((x + 1) +")");
+                xlabel.setForeground(Color.red);
+                patientEditingPanel.add(xlabel,gbc);
+				patientEditingPanel.add(new JLabel("      Illness: " + diag.getScores().get(x).dID + " Score: " + diag.getScores().get(x).matchPercentage + "%"),gbc);
+				gridyVar++;
+			}
+        }
+		
+		gbc.weightx = 0;
+		gbc.weighty = 0;
+		gbc.gridwidth = 1;
+		gbc.gridx = 0;
+		gbc.gridy = gridyVar;
+		patientEditingPanel.add(cancel, gbc);
+		gbc.gridx = 1;
+		patientEditingPanel.add(submit, gbc);
+
+		mainFrame.add(patientEditingPanel);
+	}
+
+	private void runNewPatientPanel() {
+		JPanel newPatientFormPanel = new JPanel();
+		newPatientFormPanel.setSize(MAIN_FRAME_WIDTH, MAIN_FRAME_HEIGHT);
+		
+		GridBagLayout aLayout = new GridBagLayout();
+		GridBagConstraints gbc = new GridBagConstraints();
+		newPatientFormPanel.setLayout(aLayout);
+		
+		JTextField firstNameTextField = new JTextField();
+		JTextField lastNameTextField = new JTextField();
+
+		JRadioButton maleGenderRadioButton = new JRadioButton("Male");
+		JRadioButton femaleGenderRadioButton = new JRadioButton("Female");
+
+		maleGenderRadioButton.addActionListener(e -> {
+			if(maleGenderRadioButton.isSelected()) {
+				femaleGenderRadioButton.setEnabled(false);
+			}
+			else if(!maleGenderRadioButton.isSelected()) {
+				femaleGenderRadioButton.setEnabled(true);
+			}
+		});
+		
+		femaleGenderRadioButton.addActionListener(e -> {
+			if(femaleGenderRadioButton.isSelected()) {
+				maleGenderRadioButton.setEnabled(false);
+			}
+			else if(!femaleGenderRadioButton.isSelected()) {
+				maleGenderRadioButton.setEnabled(true);
+			}
+		});
+					
+		JTextArea problemDescriptionTextArea = new JTextArea();
+		problemDescriptionTextArea.setLineWrap(true);
+		problemDescriptionTextArea.setToolTipText("Enter a patient description...");
+
+		JButton submitButton = new JButton("Submit");
+		submitButton.addActionListener(e -> {
+			String firstName = firstNameTextField.getText();
+			String lastName = lastNameTextField.getText();
+			String name = firstName + " " + lastName;
+			Boolean isMale = maleGenderRadioButton.isSelected();
+			String problemDescription = problemDescriptionTextArea.getText();
+
+			//save the new patient and start processing their disorder
+			if (problemDescription.trim().equals("")) {
+				DialogService.showInfoDialog("You must enter a patient description.");
+			} else {
+				Patient patient = PatientsDatabaseAccessObject.getInstance().createAndAddPatient(name, problemDescription, isMale);
+
+				diagnoser = new Diagnoser(patient);
+				Q ques = diagnoser.nextQ(0);
+				newPatientFormPanel.setVisible(false);
+				runFollowUpQuestionForm(ques, patient);
+			}
+		});
+		
+		
+		JButton LogoutButton = new JButton("Logout");
+		// adding the logout button.
+		LogoutButton.addActionListener(e -> {
+			if (JOptionPane.showConfirmDialog(null, "Are you sure you want to logout?", "WARNING", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+				mainFrame.dispose();
+				LoginGUI mainMenu = new LoginGUI();
+				mainMenu.setupPanel();
+			}
+		});
+		
+		JButton backButton = new JButton("Back");
+		backButton.addActionListener(e -> {
+			if (isDoc){
+				newPatientFormPanel.setVisible(false);
+				runDoctorHomePanel();
+			}
+			else {
+				mainFrame.dispose();
+				newPatientFormPanel.setVisible(false);
+				runMainFrame();
+				
+			}
+			
+			
+		});
+
+		//gui coordinates and implementation
+		gbc.fill = GridBagConstraints.BOTH;
+		gbc.insets = new Insets(10,10,10,10);
+		gbc.weightx = 0;
+		gbc.gridx = 0;
+		gbc.gridy = 1;
+		newPatientFormPanel.add(new JLabel("First Name:"), gbc);
+		
+		gbc.weightx = 0;
+		gbc.gridx = 10;
+		gbc.gridy = 0;
+		gbc.gridwidth = 1;
+		gbc.gridheight = 1;
+		newPatientFormPanel.add(LogoutButton,gbc);
+		
+		gbc.weightx = 0;
+		gbc.gridx = 9;
+		gbc.gridy = 0;
+		gbc.gridwidth = 1;
+		gbc.gridheight = 1;
+		newPatientFormPanel.add(backButton,gbc);
+		
+		gbc.weightx = 1;
+		gbc.gridx = 1;
+		gbc.gridy = 1;
+		newPatientFormPanel.add(firstNameTextField,gbc);
+		
+		gbc.weightx = 0;
+		gbc.gridx = 2;
+		gbc.gridy = 1;
+		newPatientFormPanel.add(new JLabel("Last Name:"),gbc);
+		
+		gbc.weightx = 1;
+		gbc.gridx = 3;
+		gbc.gridy = 1;
+		newPatientFormPanel.add(lastNameTextField,gbc);
+
+		gbc.weightx = 1;
+		gbc.gridx = 2;
+		gbc.gridy = 2;
+		newPatientFormPanel.add(maleGenderRadioButton,gbc);
+		
+		gbc.weightx = 1;
+		gbc.gridx = 3;
+		gbc.gridy = 2;
+		newPatientFormPanel.add(femaleGenderRadioButton,gbc);
+		
+		gbc.weightx = 0;
+		gbc.gridx = 0;
+		gbc.gridy = 2;
+		newPatientFormPanel.add(new JLabel("Enter Problem Description:"),gbc);
+		
+		gbc.weightx = 1;
+		gbc.weighty = 1;
+		gbc.gridx = 0;
+		gbc.gridy = 3;
+		gbc.gridwidth = 4;
+		newPatientFormPanel.add(new JScrollPane(problemDescriptionTextArea, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,JScrollPane.HORIZONTAL_SCROLLBAR_NEVER),gbc);
+		
+		gbc.weightx = 0;
+		gbc.weighty = 0;
+		gbc.gridx = 3;
+		gbc.gridy = 4;
+		newPatientFormPanel.add(submitButton,gbc);
+
+		mainFrame.add(newPatientFormPanel);
+	}
+
+	private void runFollowUpQuestionForm(Q ques, Patient patient) {
+		//testing purposes
+		//ques = testQuestions();
+		
+		JPanel questionPanel = new JPanel();
+		questionPanel.setSize(MAIN_FRAME_WIDTH, MAIN_FRAME_HEIGHT);
+
+		GridBagLayout aLayout = new GridBagLayout();
+		GridBagConstraints gbc = new GridBagConstraints();
+		questionPanel.setLayout(aLayout);
+
+		JLabel firstNameLabel = new JLabel();
+		firstNameLabel.setForeground(Color.blue);
+		JLabel lastNameLabel = new JLabel();
+		lastNameLabel.setForeground(Color.blue);
+
+		firstNameLabel.setText(patient.patientName.substring(0, patient.patientName.indexOf(" ")));
+		lastNameLabel.setText(patient.patientName.substring(patient.patientName.indexOf(" ") + 1));
+
+		String questionText = ques.question.text;
+		
+		int spot = questionText.indexOf("_");
+		String question1 = questionText.substring(0, spot)
+                + ques.symName 
+                + questionText.substring(spot + 1);
+
+		JLabel toggleDiags = new JLabel();
+		toggleDiags.setText("Toggle # of Diagnoses");
+		String[] s1 = { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10" };
+		JComboBox<String> toggleButton = new JComboBox<>(s1);
+		toggleButton.setSelectedItem(Integer.toString(numOfDiags));
+		toggleButton.addActionListener(e -> {
+			numOfDiags = Integer.parseInt(toggleButton.getSelectedItem().toString());
+			questionPanel.setVisible(false);
+			runFollowUpQuestionForm(ques, patient);
+		});
+
+		String[] answers = {"", "Yes", "No"};
+		JComboBox<String> answersComboBox = new JComboBox<>(answers);
+
+		JButton submitButton = new JButton("Submit");
+		submitButton.addActionListener(e -> {
+			String question1Answer;
+
+			try {
+				question1Answer = answersComboBox.getSelectedItem().toString();
+			} catch (NullPointerException ex) {
+				DialogService.showInfoDialog("Please select an item.");
+				return;
+			}
+
+			if(question1Answer.equals("yes")) {
+				patient.words = patient.words + " " + ques.symName;
+				patient.symptoms = patient.symptoms + " " + ques.symName;
+				patient.problemDescription = patient.problemDescription + " " + ques.symName;
+			}
+			else if(question1Answer.equals("")){
+				DialogService.showInfoDialog("Please select an item.");
+			}
+			else {
+				patient.symptoms = patient.symptoms + " " + ques.symName;
+			}
+
+			diagnoser.findWordMatch();
+			Score score = diagnoser.getScores().get(ques.diagnosisID);
+			if(score.matchPercentage >= 50) {
+				runReportForm(score, patient);
+			}
+			else {
+			    if(ques.diagnosisID > 3){
+					DialogService.showInfoDialog("User symptoms did not match any disorder with 50%. Consider restarting diagnosis with more information.");
+                    runReportForm(score, patient);
+                }
+			    else {
+                    Q quest = diagnoser.nextQ(ques.diagnosisID);
+                    questionPanel.setVisible(false);
+                    runFollowUpQuestionForm(quest, patient);
+                }
+			}
+
+			questionPanel.setVisible(false);
+		});
+		JButton LogoutButton = new JButton("Logout");
+		// adding the logout button.
+		LogoutButton.addActionListener(e -> {
+			if (JOptionPane.showConfirmDialog(null, "Are you sure you want to logout?", "WARNING", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+				mainFrame.dispose();
+				LoginGUI mainMenu = new LoginGUI();
+				mainMenu.setupPanel();
+			}
+		});
+		
+		JButton backButton = new JButton("Back");
+		backButton.addActionListener(e -> {
+			
+		
+			
+			if(!(isPatientEditingPanel)){
+				
+				questionPanel.setVisible(false);
+				runNewPatientPanel();
+				
+			}
+			else{
+				questionPanel.setVisible(false);
+				runDoctorHomePanel(); // possibly change this??
+				
+			}
+			
+			
+		});
+		
+		
+		//gui coordinates and implementation
+		gbc.fill = GridBagConstraints.BOTH;
+		gbc.insets = new Insets(10,10,10,10);
+		int gridyVar = 0;
+
+		
+		gbc.weighty = 0;
+		gbc.weightx = 0;
+		gbc.gridx = 4;
+		gbc.gridy = 0;
+		gbc.gridwidth = 1;
+		gbc.gridheight = 1;
+		questionPanel.add(backButton, gbc);
+		
+		gbc.weighty = 0;
+		gbc.weightx = 0;
+		gbc.gridx = 5;
+		gbc.gridy = 0;
+		gbc.gridwidth = 1;
+		gbc.gridheight = 1;
+		questionPanel.add(LogoutButton, gbc);
+		
+		
+		
+		
+		gridyVar++;
+		
+		
+		
+		
+		gbc.weightx = 0;
+		gbc.weighty = 1;
+		gbc.gridx = 3;
+		gbc.gridy = gridyVar;
+		questionPanel.add(toggleDiags,gbc);
+
+		gbc.weightx = 0;
+		gbc.weighty = 1;
+		gbc.gridx = 4;
+		gbc.gridy = gridyVar;
+		questionPanel.add(toggleButton,gbc);
+		gridyVar++;
+
+		gbc.weightx = 0;
+		gbc.gridx = 0;
+		gbc.gridy = gridyVar;
+		questionPanel.add(new JLabel("First Name:"), gbc);
+
+		gbc.weightx = 0;
+		gbc.gridx = 1;
+		gbc.gridy = gridyVar;
+		questionPanel.add(new JLabel("Last Name:"),gbc);
+		gridyVar++;
+
+		gbc.weightx = 1;
+		gbc.gridx = 0;
+		gbc.gridy = gridyVar;
+		questionPanel.add(firstNameLabel,gbc);
+
+		gbc.weightx = 1;
+		gbc.gridx = 1;
+		gbc.gridy = gridyVar;
+		questionPanel.add(lastNameLabel,gbc);
+		gridyVar++;
+
+		gbc.weightx = 0;
+		gbc.gridx = 0;
+		gbc.gridy = gridyVar;
+		questionPanel.add(new JLabel("Top Illnesses high to low:"),gbc);
+		gridyVar++;
+
+		int gridyVar2 = gridyVar;
+		Disorder disorder = new Disorder();
+		if(isDoc)
+		{
+			for (int x = 0; x < numOfDiags; x++) {
+				for (Disorder disorderFromList : disorders) {
+					if (disorderFromList.disorderID == diagnoser.getScores().get(x).dID) { // This needs to be generalized to be used elsewhere such as in Sal's changes allowing for viewing diagnoses at a later date
+						disorder = disorderFromList;
+					}
+				}
+				if (x > 4) {
+					gbc.weightx = 0;
+					gbc.gridx = 1;
+					gbc.gridy = gridyVar2;
+					JLabel xlabel = new JLabel((x + 1) + ")");
+					xlabel.setForeground(Color.red);
+					questionPanel.add(xlabel, gbc);
+					questionPanel.add(new JLabel("      Illness: " + disorder.disorderName + " Score: " + diagnoser.getScores().get(x).matchPercentage + "%"), gbc);
+					gridyVar2++;
+				} else {
+					gbc.weightx = 0;
+					gbc.gridx = 0;
+					gbc.gridy = gridyVar;
+					JLabel xlabel = new JLabel((x + 1) + ")");
+					xlabel.setForeground(Color.red);
+					questionPanel.add(xlabel, gbc);
+					questionPanel.add(new JLabel("      Illness: " + disorder.disorderName + " Score: " + diagnoser.getScores().get(x).matchPercentage + "%"), gbc);
+					gridyVar++;
+				}
+			}
+		}
+		else
+		{
+			for (int x = 0; x < numOfDiags; x++) {
+				if (x > 4) {
+					gbc.weightx = 0;
+					gbc.gridx = 1;
+					gbc.gridy = gridyVar2;
+					JLabel xlabel = new JLabel((x + 1) + ")");
+					xlabel.setForeground(Color.red);
+					questionPanel.add(xlabel, gbc);
+					questionPanel.add(new JLabel("      Illness: " + diagnoser.getScores().get(x).dID + " Score: " + diagnoser.getScores().get(x).matchPercentage + "%"), gbc);
+					gridyVar2++;
+				} else {
+					gbc.weightx = 0;
+					gbc.gridx = 0;
+					gbc.gridy = gridyVar;
+					JLabel xlabel = new JLabel((x + 1) + ")");
+					xlabel.setForeground(Color.red);
+					questionPanel.add(xlabel, gbc);
+					questionPanel.add(new JLabel("      Illness: " + diagnoser.getScores().get(x).dID + " Score: " + diagnoser.getScores().get(x).matchPercentage + "%"), gbc);
+					gridyVar++;
+				}
+			}
+		}
+
+		Score illnessScore = diagnoser.getScores().get(ques.diagnosisID);
+		gbc.weightx = 0;
+		gbc.gridx = 0;
+		gbc.gridy = gridyVar;
+		questionPanel.add(new JLabel("Question for illness " + illnessScore.dID + ": " + question1),gbc);
+
+		gbc.weightx = 1;
+		gbc.gridx = 2;
+		gbc.gridy = gridyVar;
+		questionPanel.add(answersComboBox,gbc);
+		gridyVar+= 3;
+
+		gbc.weightx = 0;
+		gbc.weighty = 0;
+		gbc.gridx = 4;
+		gbc.gridy = gridyVar;
+		questionPanel.add(submitButton,gbc);
+
+		mainFrame.add(questionPanel);
+	}
+
+	private void runReportForm(Score scores, Patient patient) {
+		JPanel reportPanel = new JPanel();
+		reportPanel.setSize(MAIN_FRAME_WIDTH, MAIN_FRAME_HEIGHT);
+
+		GridBagLayout aLayout = new GridBagLayout();
+		GridBagConstraints gbc = new GridBagConstraints();
+		reportPanel.setLayout(aLayout);
+
+		JLabel firstNameLabel = new JLabel();
+		firstNameLabel.setForeground(Color.blue);
+		JLabel lastNameLabel = new JLabel();
+		lastNameLabel.setForeground(Color.blue);
+
+		// TODO: Replace these with pulls from the database.
+		firstNameLabel.setText(patient.patientName.substring(0, patient.patientName.indexOf(" ")));
+		lastNameLabel.setText(patient.patientName.substring(patient.patientName.indexOf(" ") + 1));
+
+		int disorder1MatchPercentage = scores.matchPercentage;
+
+		String[] s2 = new String[307];
+		s2[0] = "--";
+		for (Disorder disorderFromList: disorders) {
+			s2[disorderFromList.disorderID] = Integer.toString(disorderFromList.disorderID);
+		}
+
+		JLabel diagnosedId = new JLabel();
+		diagnosedId.setText("Choose Diagnosed Illness ID");
+		JComboBox<String> diagnosedIdCB = new JComboBox<>(s2);
+		diagnosedIdCB.setSelectedItem(Integer.toString(patient.diagnosedID));
+		diagnosedIdCB.addActionListener(e -> {
+			patient.diagnosedID = Integer.parseInt(diagnosedIdCB.getSelectedItem().toString());
+			reportPanel.setVisible(false);
+			runReportForm(scores, patient);
+		});
+
+		JLabel toggleDiags = new JLabel();
+		toggleDiags.setText("Toggle # of Diagnoses");
+		String[] s1 = { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10" };
+		JComboBox<String> toggleButton = new JComboBox<>(s1);
+		toggleButton.setSelectedItem(Integer.toString(numOfDiags));
+		toggleButton.addActionListener(e -> {
+			numOfDiags = Integer.parseInt(toggleButton.getSelectedItem().toString());
+			reportPanel.setVisible(false);
+			runReportForm(scores, patient);
+		});
+
+		JButton submitButton = new JButton("Submit");
+		submitButton.addActionListener(e -> {
+			if(patient.diagnosedID == 0){
+				patient.diagnosedID = scores.dID;
+			}
+			PatientsDatabaseAccessObject.getInstance().addPatientResults(patient);
+			reportPanel.setVisible(false);
+			runHomePanel();
+			// TODO: Open next UI window or show some confirmation that user is complete.
+		});
+
+		JButton homeButton = new JButton("Home");
+		homeButton.addActionListener(e -> {
+			reportPanel.setVisible(false);
+			runHomePanel();
+		});
+		JButton LogoutButton = new JButton("Logout");
+		// adding the logout button.
+		LogoutButton.addActionListener(e -> {
+			if (JOptionPane.showConfirmDialog(null, "Are you sure you want to logout?", "WARNING", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+				mainFrame.dispose();
+				LoginGUI mainMenu = new LoginGUI();
+				mainMenu.setupPanel();
+			}
+		});
+		
+		
+
+		//gui coordinates and implementation
+		gbc.fill = GridBagConstraints.BOTH;
+		gbc.insets = new Insets(10,10,10,10);
+		int gridyVar = 1;
+
+		
+		gbc.weighty = 0;
+		gbc.weightx = 0;
+		gbc.gridx = 4;
+		gbc.gridy = 0;
+		gbc.gridwidth = 1;
+		gbc.gridheight = 1;
+		reportPanel.add(LogoutButton, gbc);
+		
+		
+		
+		gbc.weightx = 0;
+		gbc.weighty = 0;
+		gbc.gridx = 3;
+		gbc.gridy = gridyVar;
+		reportPanel.add(toggleDiags,gbc);
+		gbc.weightx = 0;
+		gbc.weighty = 0;
+		gbc.gridx = 4;
+		gbc.gridy = gridyVar;
+		reportPanel.add(toggleButton,gbc);
+		gridyVar++;
+
+		gbc.weightx = 0;
+		gbc.gridx = 0;
+		gbc.gridy = gridyVar;
+		reportPanel.add(new JLabel("First Name:"), gbc);
+
+		gbc.weightx = 0;
+		gbc.gridx = 1;
+		gbc.gridy = gridyVar;
+		reportPanel.add(new JLabel("Last Name:"),gbc);
+		gridyVar++;
+
+		gbc.weightx = 1;
+		gbc.gridx = 0;
+		gbc.gridy = gridyVar;
+		reportPanel.add(firstNameLabel,gbc);
+
+		gbc.weightx = 1;
+		gbc.gridx = 1;
+		gbc.gridy = gridyVar;
+		reportPanel.add(lastNameLabel,gbc);
+		gridyVar++;
+
+		gbc.weightx = 0;
+		gbc.gridx = 0;
+		gbc.gridy = gridyVar;
+		gbc.gridwidth = 2;
+		JLabel title2 = new JLabel("Disorder listed with percentage match for patient:");
+		Font newLabelFont=new Font(title2.getFont().getName(),Font.ITALIC+Font.BOLD,title2.getFont().getSize());
+		title2.setFont(newLabelFont);
+		reportPanel.add(title2,gbc);
+		gridyVar++;
+
+		int gridyVar2 = gridyVar;
+		Disorder disorder = new Disorder();
+		if(isDoc)
+		{
+			for(int x = 0; x < numOfDiags; x++) {
+				for (Disorder disorderFromList: disorders) {
+					if(disorderFromList.disorderID == diagnoser.getScores().get(x).dID) {
+						disorder = disorderFromList;
+					}
+				}
+				if(x > 4){
+					gbc.weightx = 0;
+					gbc.gridx = 1;
+					gbc.gridy = gridyVar2;
+					JLabel xlabel = new JLabel((x + 1) +")");
+					xlabel.setForeground(Color.red);
+					reportPanel.add(xlabel,gbc);
+					reportPanel.add(new JLabel("      Illness: " + disorder.disorderName + " Score: " + diagnoser.getScores().get(x).matchPercentage + "%"),gbc);
+					gridyVar2++;
+				}
+				else{
+					gbc.weightx = 0;
+					gbc.gridx = 0;
+					gbc.gridy = gridyVar;
+					JLabel xlabel = new JLabel((x + 1) +")");
+					xlabel.setForeground(Color.red);
+					reportPanel.add(xlabel,gbc);
+					reportPanel.add(new JLabel("      Illness: " + disorder.disorderName + " Score: " + diagnoser.getScores().get(x).matchPercentage + "%"),gbc);
+					gridyVar++;
+				}
+			}
+		}
+		else {
+			for (int x = 0; x < numOfDiags; x++) {
+				if (x > 4) {
+					gbc.weightx = 0;
+					gbc.gridx = 1;
+					gbc.gridy = gridyVar2;
+					JLabel xlabel = new JLabel((x + 1) + ")");
+					xlabel.setForeground(Color.red);
+					reportPanel.add(xlabel, gbc);
+					reportPanel.add(new JLabel("      Illness: " + diagnoser.getScores().get(x).dID + " Score: " + diagnoser.getScores().get(x).matchPercentage + "%"), gbc);
+					gridyVar2++;
+				} else {
+					gbc.weightx = 0;
+					gbc.gridx = 0;
+					gbc.gridy = gridyVar;
+					JLabel xlabel = new JLabel((x + 1) + ")");
+					xlabel.setForeground(Color.red);
+					reportPanel.add(xlabel, gbc);
+					reportPanel.add(new JLabel("      Illness: " + diagnoser.getScores().get(x).dID + " Score: " + diagnoser.getScores().get(x).matchPercentage + "%"), gbc);
+					gridyVar++;
+				}
+			}
+		}
+		gridyVar+= 2;
+
+		gbc.weightx = 0;
+		gbc.weighty = 0;
+		gbc.gridx = 2;
+		gbc.gridy = gridyVar;
+		reportPanel.add(diagnosedId,gbc);
+		gbc.weightx = 0;
+		gbc.weighty = 0;
+		gbc.gridx = 4;
+		gbc.gridy = gridyVar;
+		reportPanel.add(diagnosedIdCB,gbc);
+		gridyVar++;
+
+		gbc.weightx = 0;
+		gbc.weighty = 0;
+		gbc.gridx = 2;
+		gbc.gridy = gridyVar;
+		reportPanel.add(submitButton,gbc);
+
+		gbc.weightx = 0;
+		gbc.weighty = 0;
+		gbc.gridx = 4;
+		gbc.gridy = gridyVar;
+		reportPanel.add(homeButton,gbc);
+
+		mainFrame.add(reportPanel);
+	}
+}

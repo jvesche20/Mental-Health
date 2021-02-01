@@ -1,0 +1,34 @@
+Meeting at 8:00 PM EST
+
+Meeting notes:
+	• Sonali: Did we have to add missing files, but did run
+	• Salvatore screen sharing
+		○ Select user type: doctor vs. patient
+		○ (Dr. Azar: two people not attending today's meeting: Peter and [new member] Austin. Record the meeting for them)
+		○ Doctor portal:
+			§ Table with patient IDs; able to add new patients
+				□ Name
+				□ Gender
+				□ Problem description
+			§ Questions should get patient score for illness closer to 50% goal
+				□ Just inserts a keyword into the sentence
+				□ Not sure how ties are handled
+				□ Questions associated to illness(es) that are possible
+				□ Behaves like an expert system
+				□ Manually writing in questions would be tedious, hence why Josh tried to make it more generic
+					® Scrapped thesaurus module
+			§ Keywords for patients on review; also pre-existing conditions and drug/alcohol use
+				□ Latter their own attributes
+	• Make sure we're using the Access database from the Google Drive folder, since it's the newest and the only one on there
+		○ Questions table
+	• Maybe create a flowchart?
+	• Consider GitLab for source control
+	• Dr. Azar:
+		○ Focus on working program
+		○ Dynamically updating questions for illnesses
+		○ Take previous cases into account
+		○ On-campus meeting with everybody for two hours to go over the code in person
+		○ Establish a base line
+	• Set up the code in our preferred IDEs and get it to work
+	• See about getting the code into a private GitLab repository and share it
+	• Meeting this Sunday for code review

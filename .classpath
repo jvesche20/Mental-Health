@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="src" path="mental-health-data-access-master/data-access-library/src/main/java"/>
+	<classpathentry kind="src" path="mental-health-data-access-master/data-access-library/src/test/java"/>
+	<classpathentry kind="src" path="mental-health-data-access-master/mental-health-system-desktop/src/main/java"/>
+	<classpathentry kind="lib" path="mental-health-data-access-master/build/libs/mental-health-data-access.jar"/>
+	<classpathentry kind="lib" path="mental-health-data-access-master/data-access-library/build/libs/data-access-library.jar"/>
+	<classpathentry kind="lib" path="mental-health-data-access-master/gradle/wrapper/gradle-wrapper.jar"/>
+	<classpathentry kind="lib" path="mental-health-data-access-master/mental-health-system-desktop/build/libs/mental-health-system-desktop.jar"/>
+	<classpathentry kind="output" path="mental-health-data-access-master/data-access-library/build/classes/java/main"/>
+</classpath>

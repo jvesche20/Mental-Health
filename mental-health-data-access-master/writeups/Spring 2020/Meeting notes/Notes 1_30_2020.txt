@@ -1,0 +1,42 @@
+Sals crappy notes:
+
+Improvements - 
+- Angular for webapp
+	- Chris/Sonali mentioned interest
+- DB changes
+	- Uzma mentioned interest
+- Access Control/Security
+	- Peter mentioned interest previous meeting
+- Imrpove apps usage of prior cases rather than just DSM
+
+
+Todo -
+- GitHub, Gitlab
+- Google Doc
+
+Chris's awesome notes:
+Online meeting via Zoom at 8:30 PM
+
+Participants:
+Chris
+Salvatore
+Peter
+Sonali
+Dr. Azar
+Mengyi
+Uzma
+Salvatore got the project to compile; not able to get MS Access working since he doesn't have it
+Josh sent the latest code with his write-up; does compile
+Dr. Azar will send us the latest .txt file (from the PDF)
+Subtopics from email
+Manually add Ucanaccess libraries to the project
+Dr. Azar's suggestions for improvements:
+Show multiple matches with percentages
+More configuration
+Adding cases (in addition to / instead of DSM data)
+Dr. Azar shared Peng folder (read-only, for our own use)
+We need to define actionable points, make a proposal for what everyone can do
+Database
+Backend security
+Front end
+Source control (negotiate with help desk for licensing?)
