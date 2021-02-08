@@ -1,0 +1,116 @@
+/**
+css style version: 1.0
+@author ChenXiao Liu
+*/
+
+.root {
+    -fx-background-color: white;
+    -fx-padding: 25 35 25 35;
+    -fx-alignment: center;
+}
+
+#vbox-left {
+    -fx-alignment: top-left;
+}
+
+.button {
+    -fx-background-radius: 50;
+    -fx-border-radius: 50;
+}
+
+.button:hover {
+    -fx-cursor: hand;
+}
+
+#button-black {
+    -fx-border-color: black;
+    -fx-background-color: transparent;
+}
+
+#button-black:hover {
+    -fx-background-color: black;
+    -fx-text-fill: white;
+}
+
+#button-black:pressed {
+    -fx-background-color: #000000D7;
+    -fx-text-fill: white;
+}
+
+#button-pink {
+    -fx-background-color: #FA8072;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+#button-pink:hover {
+    -fx-background-color: #FFA07A;
+}
+
+#button-pink:pressed {
+    -fx-background-color: #F08080;
+}
+
+#button-goback {
+    -fx-border-color: transparent transparent #FA8072 transparent;
+    -fx-background-color: transparent;
+    -fx-text-fill: #4682b4;
+    -fx-border-radius: null;
+}
+
+#button-goback:hover {
+    -fx-text-fill: #1e90ff;
+}
+
+#button-goback:pressed {
+    -fx-text-fill: #4169e1;
+}
+
+#button-hyperlink {
+    -fx-background-color: transparent;
+    -fx-text-fill: #4682b4;
+    -fx-underline: true;
+}
+
+#button-hyperlink:hover {
+    -fx-text-fill: #1e90ff;
+}
+
+#button-hyperlink:pressed {
+    -fx-text-fill: #4169e1;;
+}
+
+.text-field {
+    -fx-focus-color: #FA8072;
+    -fx-prompt-text-fill: derive(-fx-control-inner-background, -40%);
+    -fx-background-radius: 50;
+    -fx-border-radius: 50;
+    -fx-faint-focus-color: transparent;
+}
+
+#text-field-true {
+    -fx-text-box-border: lightgreen;
+    -fx-focus-color: #adff2f;
+}
+
+#text-field-false {
+    -fx-text-box-border: red;
+    -fx-focus-color: #b22222;
+}
+
+#label-pink {
+    -fx-border-color: transparent transparent transparent #FA8072;
+    -fx-padding: 0 0 0 5;
+}
+
+#label-title {
+    -fx-font-size: 16;
+}
+
+#label-signUp {
+    -fx-font-size: 20;
+}
+
+.text-area {
+    -fx-prompt-text-fill: derive(-fx-control-inner-background, -40%);
+}

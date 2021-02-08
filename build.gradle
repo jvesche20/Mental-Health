@@ -1,0 +1,13 @@
+plugins {
+    id 'java-library'
+    id 'idea'
+}
+
+wrapper {
+    gradleVersion = '6.7.1'
+    distributionType = Wrapper.DistributionType.ALL
+}
+
+test {
+    useJUnitPlatform()
+}

@@ -1,0 +1,60 @@
+plugins {
+    //id 'java'
+    id 'java-library'
+    id 'idea'
+}
+
+compileJava {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+}
+
+compileTestJava {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+}
+
+repositories {
+    mavenCentral()
+}
+
+configurations.all {
+    resolutionStrategy {
+        force 'xml-apis:xml-apis:1.0.b2'
+    }
+}
+
+dependencies {
+    implementation 'net.sf.ucanaccess:ucanaccess:4.0.4'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.6.0'
+
+    implementation group: 'edu.stanford.nlp', name: 'stanford-corenlp', version: '3.8.0'
+    implementation group: 'edu.stanford.nlp', name: 'stanford-corenlp', version: '3.8.0', classifier: 'models'
+
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src/main/java']
+        }
+    }
+
+    test {
+        java {
+            srcDirs = ['src/test/java']
+        }
+    }
+}
+
+test {
+    useJUnitPlatform()
+
+    testLogging.showStandardStreams = true
+
+    beforeTest { descriptor ->
+        logger.lifecycle("Running test: " + descriptor)
+    }
+}
