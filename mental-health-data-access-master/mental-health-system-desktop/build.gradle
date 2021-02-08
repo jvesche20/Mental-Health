@@ -1,0 +1,48 @@
+plugins {
+    id 'java'
+    id 'application'
+    id 'idea'
+    id 'org.openjfx.javafxplugin' version '0.0.8'
+}
+
+compileJava {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+}
+
+compileTestJava {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+}
+
+repositories {
+    mavenCentral()
+}
+
+javafx {
+    version = "11.0.2"
+    modules = [ 'javafx.controls' ]
+}
+
+dependencies {
+    implementation project(':data-access-library')
+    testImplementation project(':data-access-library')
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src/main/java']
+        }
+    }
+
+    test {
+        java {
+            srcDirs = ['src/test/java']
+        }
+    }
+}
+
+application {
+    mainClassName = 'edu.ltu.dsmproject.desktop.MentalHealthDataAccessDesktop'
+}
